@@ -1,2 +1,2 @@
 # Ticket-Master-APP
-Concert Info
+AUTHORS: Rick Santos, Fausto Lliguicota
