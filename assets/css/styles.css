@@ -1,0 +1,25 @@
+body {
+
+	margin: 0;
+	padding: 0;
+	
+	height: 100%;
+	
+	overflow-x: hidden;
+	
+}
+.container {
+	background-color: #fbfbfbd4;
+
+}
+.mr-auto, .mx-auto {
+	margin: auto;
+}
+
+#page-title {
+	padding-top: 110px;
+}
+
+.image-place {
+	padding-right: 10px;
+}
