@@ -7,7 +7,15 @@ var artist_Info = {
   name: "",
   allGenres: [],
   numOfShows: 0,
-  shows: []
+  shows: [
+    eventName = "",
+    venueName = "",
+    state = 
+    [
+      
+      NJ = [],
+    ]
+  ]
 };
 var rp = require("request-promise");
 var artistData = [];
@@ -83,21 +91,23 @@ function getTotalPages(artistParam) {
     console.log(totalEntries);
     console.log(parseInt(totalEntries / 50));
     var numOfPages = parseInt(totalEntries / 50);
-
+    returnEachPage(artistParam,numOfPages);
   });
 }
 
 function returnEachPage(artistId, pageNum) {
-  var count = 0;
-  if(count < 3){
+  //var count = 0;
+    
   rp(
     "https://api.songkick.com/api/3.0/artists/"+artistId+"/gigography.json?apikey=BE5NJCwsjpvPs5A8&page=10"
   ).then(function(body) 
   {
-    JSON.parse(body).resultsPage.results
+    console.log(JSON.parse(body).resultsPage.results);
+    
+    
+
   });
 
-}
 }
 function updateTheGenres(artistParam, genrei, genre) {
   connection.query("update half set ? where ?", [
