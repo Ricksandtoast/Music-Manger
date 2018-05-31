@@ -6,7 +6,7 @@ var array_Of_Artist_Info = [];
 var returnEachPageCount = 0;
 //constructer
 function Artist_Info() {
-  name: "Rick";
+  name: "";
   allGenres = [];
   numOfShows: 8;
   shows: [
@@ -118,10 +118,10 @@ function getSongKickId(artistParam) {
     var songKickId = JSON.parse(body).resultsPage.results.artist[0].id;
     console.log(JSON.parse(body).resultsPage.results.artist[0].id);
     console.log("line 189 " + songKickData[0].name);
-    getTotalPages(songKickId);
+    getTotalPages(songKickId,artistParam);
   });
 }
-function getTotalPages(artistParam) {
+function getTotalPages(artistParam,artistName) {
   //artistParam = songKickData[0].id;
   rp(
     "https://api.songkick.com/api/3.0/artists/" +
@@ -134,15 +134,18 @@ function getTotalPages(artistParam) {
     console.log(totalEntries);
     console.log(parseInt(totalEntries / 50));
     var numOfPages = parseInt(totalEntries / 50);
+    // count to beat the stupid fucking async bull shit
     var count = 1;
     //returnEachPage(artistParam,numOfPages);
     console.log("Ithink it breaks here");
-    returnEachPage(artistParam, numOfPages, count);
+    returnEachPage(artistParam, numOfPages, count,artistName);
   });
 }
-function returnEachPage(artistId, numOfPages, count) {
-  console.log("line 147" + count);
-  if(count<3){
+function returnEachPage(artistId, numOfPages, count,artistName) {
+  console.log("line145 " +artistName)
+  console.log("num of pages " + numOfPages)
+  console.log("line 147 " + count);
+  if(count<numOfPages){
   rp(
     "https://api.songkick.com/api/3.0/artists/" +
       artistId +
@@ -151,15 +154,25 @@ function returnEachPage(artistId, numOfPages, count) {
     var numOfEventsPerPage = JSON.parse(body).resultsPage.results.event.length;
 
     //console.log(JSON.parse(body).resultsPage.results.event[2].venue.metroArea.state.displayName);
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < numOfEventsPerPage; i++) {
       console.log(i);
       //console.log(JSON.parse(body).resultsPage.results.event[i].venue.metroArea.state.displayName);
-      console.log(JSON.parse(body).resultsPage.results.event[i].venue);
+      var test = JSON.parse(body).resultsPage.results.event[i].venue.metroArea.state;
+      // var state = JSON.parse(body).resultsPage.results.event[i].venue.metroArea.state.displayName;
+      var venueName =JSON.parse(body).resultsPage.results.event[i].venue.displayName;
+      console.log(venueName);
+        if(test != undefined)
+        {
+          
+          var state = JSON.parse(body).resultsPage.results.event[i].venue.metroArea.state.displayName;
+          console.log(state);
+          //console.log(venueName);       
+         }
       console.log("========================================");
     }
     count++;
     // console.log(count);
-    returnEachPage(artistId, 0, count);
+    returnEachPage(artistId, numOfPages, count,artistName);
   });
 }
 }
