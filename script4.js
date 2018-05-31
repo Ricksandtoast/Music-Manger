@@ -21,7 +21,7 @@ connection.connect(function(err) {
   console.log("connected as id " + connection.threadId + "\n");
   //createProduct();
   // updateArtistGenre("Passion", "genre2", "dis");
-  //selectAll();
+  selectAll();
   // getShowDates();
   // getAllArtists();
   // getSongKickId("The Dillinger Escape Plan");

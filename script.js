@@ -8,8 +8,8 @@ var returnEachPageCount = 0;
 function Artist_Info() {
   name: "";
   allGenres = [];
-  numOfShows: 8;
-  shows: [
+  numOfShows: 0;
+  shows: {
     (date = ""),
     (venueName = ""),
     (state = [
@@ -64,7 +64,7 @@ function Artist_Info() {
       (WI = 0),
       (WY = 0)
     ])
-  ];
+  };
 }
 var rp = require("request-promise");
 var artistData = [];
@@ -89,10 +89,14 @@ connection.connect(function(err) {
   //selectAll();
   // getShowDates();
   // getAllArtists();
+ 
   getSongKickId("The Dillinger Escape Plan");
+  
+  
   // var artist = new Artist_Info();
   // console.log(artist.name);
 });
+
 
 function getAllArtists() {
   connection.query("select * from half", function(err, res) {
@@ -105,6 +109,7 @@ function getAllArtists() {
 }
 
 function getSongKickId(artistParam) {
+  var newArtist = new Artist_Info();
   rp(
     "https://api.songkick.com/api/3.0/search/artists.json?apikey=BE5NJCwsjpvPs5A8&query=" +
       artistParam
@@ -118,10 +123,10 @@ function getSongKickId(artistParam) {
     var songKickId = JSON.parse(body).resultsPage.results.artist[0].id;
     console.log(JSON.parse(body).resultsPage.results.artist[0].id);
     console.log("line 189 " + songKickData[0].name);
-    getTotalPages(songKickId,artistParam);
+    getTotalPages(songKickId,artistParam,newArtist);
   });
 }
-function getTotalPages(artistParam,artistName) {
+function getTotalPages(artistParam,artistName,newArtist) {
   //artistParam = songKickData[0].id;
   rp(
     "https://api.songkick.com/api/3.0/artists/" +
@@ -138,19 +143,22 @@ function getTotalPages(artistParam,artistName) {
     var count = 1;
     //returnEachPage(artistParam,numOfPages);
     console.log("Ithink it breaks here");
-    returnEachPage(artistParam, numOfPages, count,artistName);
+    returnEachPage(artistParam, numOfPages, count,artistName,newArtist);
   });
 }
-function returnEachPage(artistId, numOfPages, count,artistName) {
+function returnEachPage(artistId, numOfPages, count,artistName,newArtist) 
+{
+
   console.log("line145 " +artistName)
   console.log("num of pages " + numOfPages)
-  console.log("line 147 " + count);
+  console.log("line 153 " + count);
   if(count<numOfPages){
   rp(
     "https://api.songkick.com/api/3.0/artists/" +
       artistId +
       "/gigography.json?apikey=BE5NJCwsjpvPs5A8&page="+count
-  ).then(function(body) {
+  ).then(function(body) 
+  {
     var numOfEventsPerPage = JSON.parse(body).resultsPage.results.event.length;
 
     //console.log(JSON.parse(body).resultsPage.results.event[2].venue.metroArea.state.displayName);
@@ -166,16 +174,29 @@ function returnEachPage(artistId, numOfPages, count,artistName) {
           
           var state = JSON.parse(body).resultsPage.results.event[i].venue.metroArea.state.displayName;
           console.log(state);
-          //console.log(venueName);       
+          
+          if(state === "MA"){
+          console.log( newArtist.shows.state[21]);
+          array_Of_Artist_Info.push(newArtist);
+          //console.log(venueName);
+          }      
          }
       console.log("========================================");
     }
     count++;
     // console.log(count);
-    returnEachPage(artistId, numOfPages, count,artistName);
+    returnEachPage(artistId, numOfPages, count,artistName,newArtist);
+    console.log("fucking count " + count + "numpages " +numOfPages);
+    if(count === numOfPages)
+    {
+      console.log("if statement activate " + array_Of_Artist_Info[0]);
+    }
+   
   });
 }
-}
+  }
+
+
 function updateTheGenres(artistParam, genrei, genre) {
   connection.query("update half set ? where ?", [
     {
@@ -186,139 +207,3 @@ function updateTheGenres(artistParam, genrei, genre) {
     }
   ]);
 }
-
-// rp(
-//   "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=Structures&api_key=4d664b26485469443950f7af65d0a6ce&format=json"
-// )
-//   .then(function(body) {
-//     // Process html...
-//     console.log(JSON.parse(body).artist.name);
-//   })
-//   .catch(function(err) {
-//     // Crawling failed...
-//   });
-
-// var artistsGenres = [];
-// connection.connect(function(err) {
-//   if (err) throw err;
-//   console.log("connected as id " + connection.threadId + "\n");
-//   // apiCall();
-//   initArtists()
-//   // readArtists();
-// });
-
-// // Then run a request to the OMDB API with the movie specified
-
-// function readArtists() {
-//   console.log("Selecting all artists...\n");
-//   connection.query("SELECT * FROM half", function(err, res) {
-//     if (err) throw err;
-//     // Log all results of the SELECT statement
-//     for (var i = 0; i < res.length; i++) {
-//       console.log(i + " " + res[i].name);
-//     }
-//   });
-// }
-
-// function initArtists(){
-
-//   console.log("Get the artist then make the api call\n");
-//   connection.query("SELECT * FROM half", function(err, res) {
-//     if (err) throw err;
-//     // Log all results of the SELECT statement
-//     for (var i = 15; i < res.length; i++) {
-//       var artistParam = res[i].name;
-//       apiCall(artistParam, res[i]);
-
-//       };
-
-//     });
-//   }
-//   //api key
-
-// function apiCall(artistParam, i) {
-//   // artistParam = artistParam.replace(' ', '').replace(/ /g, "+").slice(0, -1);
-//   //artistParam = artistParam.replace(' ', '').replace(/ /g, "+").slice(0, -1);
-//   // console.log(artistParam);
-//   return request(
-//     "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" +
-//     artistParam.replace(/ /g, '+') +
-//     "&api_key=4d664b26485469443950f7af65d0a6ce&format=json",
-//     function(error, response, body) {
-//       var artist, genre = '';
-//         // If the request is successful (i.e. if the response status code is 200)
-
-//         if (!error && response.statusCode === 200) {
-//           // Parse the body of the site and recover just the imdbRating
-//           // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-//          console.log(i + " " + artistParam);
-//          ;
-//         //  if(body = undefined)
-//         //  {
-//         //    console.log("Ill let you know");
-//         //  }
-//           var artist = JSON.parse(body).artist.name;
-//           var genre = JSON.parse(body).artist.tags.tag;
-
-//           //
-
-//           console.log(artist);
-//           console.log(genre);
-//           console.log("========================================");
-//         }
-//         return(
-//         {
-//           artist: artist,
-//           genre: genre
-//         });
-//       }
-//     );
-//   }
-
-//http://api.rovicorp.com/data/v1.1/name/info?apikey=apikey&sig=sig&name=Ice-T
-
-//last fm api key
-//4d664b26485469443950f7af65d0a6ce
-
-// request(
-//   "http://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=" + "Structures" + "&api_key=4d664b26485469443950f7af65d0a6ce&format=json",
-//   function(error, response, body) {
-//     // If the request is successful (i.e. if the response status code is 200)
-//     if (!error && response.statusCode === 200) {
-//       // Parse the body of the site and recover just the imdbRating
-//       // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-//       var artist = JSON.parse(body).artist.name
-//       var genre = JSON.parse(body).artist.tags;
-
-//       console.log(artist + "fuck");
-//       console.log(genre);
-//       console.log("========================================");
-//     }
-
-//   }
-// );
-
-// request(
-//   "https://app.ticketmaster.com/discovery/v2/events.json?countryCode=US&page=0&size=120&apikey=OOkCf8lm7KthxEeKulPV9RWo8huxTo0h",
-//   function(error, response, body) {
-//     // If the request is successful (i.e. if the response status code is 200)
-//     if (!error && response.statusCode === 200) {
-//       // Parse the body of the site and recover just the imdbRating
-//       // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-//       for (var i = 0; i < 15; i++) {
-
-//         var eventType = JSON.parse(body)._embedded.events[i].classifications[0]
-//           .segment.name;
-//         if (eventType == "Music") {
-//           listOfEvents.push(JSON.parse(body)._embedded.events[i]);
-//           console.log(i + " " + JSON.parse(body)._embedded.events[i].name);
-//           console.log(
-//             JSON.parse(body)._embedded.events[i].classifications[0].segment.name
-//           );
-//           console.log("====================");
-//         }
-//       }
-
-//     }
-//   }
-// );
